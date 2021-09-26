@@ -21,14 +21,14 @@ class MyGame:public Game{
       for (int i=0;i<100;i++) { 
 		 int vx=rand()%500 - 250;
 		 int vy=rand()%500 - 250;
-		 a.read(media,"media/anim1.txt");
+		 a.read(media,"Workspace/media/anim1.txt");
 	//	 SDL_Texture *bitmapTex=media->read("media/obsticle.bmp");
 		 src.x=0; src.y=0;
 		 SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
          particles.push_back(new Particle(ren,&a,&src,w/2,h/2,vx,vy,0,50));
          particles[i]->setBound(0,0,w,h);
        }
-       b.read(media,"media/background.txt");
+       b.read(media,"Workspace/media/background.txt");
        src.x=0; src.y=0; src.w=640; src.h=480;
 	}
 	void update(double dt) {
