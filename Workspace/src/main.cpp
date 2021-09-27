@@ -21,7 +21,7 @@ class MyGame:public Game
 		int yaxis = 0;
     	for (int i=0;i<2;i++) //loops twice, once for each cat
 		{ 
-			if (i == 0) //top cat y position; i=0 in loop so this is the flag for cat1 initiation
+			if (i == 0) //sets top cat y position and running animation; i=0 in loop so this is the flag for cat1 initiation
 			{
 				animations.push_back("media/animB.txt");
 				yaxis = 210;
@@ -32,7 +32,7 @@ class MyGame:public Game
         		cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0, 0, 0));
         		cats[i]->setBound(0, 0, w, h);
 			}
-			else //bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
+			else //bottom cat y position and sunning animation; i!=0 in loop so this is the flag for cat2 initiation
 			{
 				animations.push_back("media/animW.txt");
 				yaxis = 243;
