@@ -85,28 +85,26 @@ class Cat
 	Animation  *a;
 	SDL_Rect *src;
 	SDL_Rect dest;
-	double x,y,vx,vy,ax,ay;
+	double x,y,vx,vy;
 	int minx,miny,maxx,maxy;
 	public:
 	Cat(SDL_Renderer *newRen, Animation *newA, SDL_Rect *newSrc,
         				double newx=0.0, double newy=0.0,
-        				double newvx=0.0, double newvy=0.0,
-        				double newax=0.0, double neway=0.0) 
+        				double newvx=0.0, double newvy=0.0,) 
 	{
+		//FYI i'm commenting out the y stuff since we're not dealing with jumping yet, so for now the y value can stay static
 		src=newSrc;
 		ren=newRen;
 		a=newA;
 		dest.w=src->w; //img width
-    	dest.h=src->h; //img height
-    	dest.x=newx; //starting x pos
-    	dest.y=newy; //starting y pos
-    	x=newx;
-    	y=newy;
-    	vx=newvx; //x velocity
-    	//vy=newvy; 
-    	//ax=newax; //x acceleration
-    	//ay=neway;  
-    	setBound();
+    		dest.h=src->h; //img height
+    		dest.x=newx; //starting x pos
+    		dest.y=newy; //starting y pos
+    		x=newx;
+    		y=newy;
+    		vx=newvx; //x velocity
+    		//vy=newvy; //y velocity
+    		setBound();
   	}
 	void setBound(int newMinX=0, int newMinY=0, int newMaxX=0, int newMaxY=0) //bounds based on window size
 	{
@@ -115,21 +113,15 @@ class Cat
   	}
 	void update(double dt) 
   	{
-		if (maxx!=minx) //causes the cats to loop to the other side when they reach an edge
+		if (maxx!=minx) //causes the cats to loop/reappear on the other side when they reach an edge
 		{
-			if (x<=minx)
-			{
-				x=maxx;
-			}
-			else if (x>=maxx)
-			{ 
-			x=minx; 
-			}
+			if (x<=minx) { x=maxx; }
+			else if (x>=maxx) { x=minx; }
 		}	
 		x+=vx; 	//y+=vy*dt; 	update x and y velocities of cat
 		dest.x=int(x);	//dest.y=(int)y; 	sets new destination of x and y
-    	a->update(dt);	//animate! animate! animate! make leg move
-    	SDL_RenderCopy(ren, a->getTexture(), src, &dest); //cat 
+    		a->update(dt);	//animate! animate! animate! make leg move
+    		SDL_RenderCopy(ren, a->getTexture(), src, &dest); //cat 
    	}
 	void setVelocityX(double velocity)
   	{
