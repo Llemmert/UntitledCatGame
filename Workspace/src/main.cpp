@@ -29,7 +29,7 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0, 0, 0));
+        			cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0));
         			cats[i]->setBound(0, 0, w, h);
 			}
 			else //bottom cat y position and sunning animation; i!=0 in loop so this is the flag for cat2 initiation
@@ -40,7 +40,7 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0, 0, 0));
+        			cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0));
         			cats[i]->setBound(0, 0, w, h);
 			}
     	}
