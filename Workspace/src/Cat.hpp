@@ -97,19 +97,19 @@ class Cat
 		ren=newRen;
 		a=newA;
 		dest.w=src->w; //img width
-    	dest.h=src->h; //img height
-    	dest.x=newx; //starting x pos
-    	dest.y=newy; //starting y pos
-    	x=newx;
-    	y=newy;
-    	vx=newvx; //x velocity
-    	//vy=newvy; //y velocity
-    	setBound();
+    		dest.h=src->h; //img height
+    		dest.x=newx; //starting x pos
+    		dest.y=newy; //starting y pos
+    		x=newx;
+    		y=newy;
+    		vx=newvx; //x velocity
+    		//vy=newvy; //y velocity
+    		setBound();
   	}
 	void setBound(int newMinX=0, int newMinY=0, int newMaxX=0, int newMaxY=0) //bounds based on window size
 	{
-    	minx=newMinX; maxx=newMaxX;
-    	miny=newMinY; maxy=newMaxY;
+    		minx=newMinX; maxx=newMaxX;
+    		miny=newMinY; maxy=newMaxY;
   	}
 	void update(double dt) 
   	{
@@ -120,8 +120,8 @@ class Cat
 		}	
 		x+=vx; 	//y+=vy*dt; 	update x and y velocities of cat
 		dest.x=int(x);	//dest.y=(int)y; 	sets new destination of x and y
-    	a->update(dt);	//animate! animate! animate! make leg move
-    	SDL_RenderCopy(ren, a->getTexture(), src, &dest); //cat 
+    		a->update(dt);	//animate! animate! animate! make leg move
+    		SDL_RenderCopy(ren, a->getTexture(), src, &dest); //cat 
    	}
 	void setVelocityX(double velocity)
   	{
