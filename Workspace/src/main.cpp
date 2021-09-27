@@ -19,9 +19,9 @@ class MyGame:public Game
 	{
 		vector <string> animations;
 		int yaxis = 0;
-    	for (int i=0;i<2;i++) //loops twice, once for each cat
+    	for (int i=0;i<2;i++) //loops twice, once for each cat. this is probably what's messing with the animations idk
 		{ 
-			if (i == 0) //sets top cat y position and running animation; i=0 in loop so this is the flag for cat1 initiation
+			if (i == 0) //top cat y position; i=0 in loop so this is the flag for cat1 initiation
 			{
 				animations.push_back("media/animB.txt");
 				yaxis = 210;
@@ -29,10 +29,10 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0));
-        			cats[i]->setBound(0, 0, w, h);
+        		cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0));
+        		cats[i]->setBound(0, 0, w, h);
 			}
-			else //bottom cat y position and sunning animation; i!=0 in loop so this is the flag for cat2 initiation
+			else //bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
 			{
 				animations.push_back("media/animW.txt");
 				yaxis = 243;
@@ -40,8 +40,8 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0));
-        			cats[i]->setBound(0, 0, w, h);
+        		cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0));
+        		cats[i]->setBound(0, 0, w, h);
 			}
     	}
     	b.read(media,"media/background.txt");
