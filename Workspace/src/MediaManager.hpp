@@ -15,7 +15,7 @@ class MediaManager{
 		cout << "Read " << filename << endl;
 	    SDL_Surface *ob;
 	    ob=SDL_LoadBMP(filename.c_str());
-	    SDL_SetColorKey(ob,SDL_TRUE,0x0000ff);
+	    SDL_SetColorKey(ob,SDL_TRUE,SDL_MapRGB(ob->format, 164, 117, 160));
         if (ob==NULL) throw Exception("Could not load "+filename);
 	    bitmapTex = SDL_CreateTextureFromSurface(ren, ob);
         if (bitmapTex==NULL) throw Exception ("Could not create texture");
