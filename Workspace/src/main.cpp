@@ -23,7 +23,7 @@ class MyGame:public Game
 		{ 
 			if (i == 0) //top cat y position; i=0 in loop so this is the flag for cat1 initiation
 			{
-				animations.push_back("media/animB.txt");
+				animations.push_back("Workspace/media/animB.txt");
 				yaxis = 210;
 				a.read(media, animations[i]);
 				src.x=0; src.y=0;
@@ -34,7 +34,7 @@ class MyGame:public Game
 			}
 			else //bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
 			{
-				animations.push_back("media/animW.txt");
+				animations.push_back("Workspace/media/animW.txt");
 				yaxis = 243;
 				a2.read(media, animations[i]);
 				src.x=0; src.y=0;
@@ -44,7 +44,7 @@ class MyGame:public Game
         			cats[i]->setBound(0, 0, w, h);
 			}
     		}
-    		b.read(media,"media/background.txt");
+    		b.read(media,"Workspace/media/background.txt");
     		src.x=0; src.y=0; src.w=640; src.h=480;
 	}
 	void update(double dt) 

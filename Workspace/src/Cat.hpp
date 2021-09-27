@@ -18,7 +18,7 @@ class AnimationFrame
 	{
 		string fname;
 		in >> millis >> fname;
-		frame=media->read("media/"+fname+".bmp");
+		frame=media->read("Workspace/media/"+fname+".bmp");
 		//cout << "reading " << fname << ".bmp" << endl;
 	}
 	int getMillis() { return millis; }
