@@ -19,7 +19,7 @@ class MyGame:public Game
 	{
 		vector <string> animations;
 		int yaxis = 0;
-    		for (int i=0;i<2;i++) //loops twice, once for each cat. this is probably what's messing with the animations idk
+    		for (int i=0;i<2;i++) //loops twice, once for each cat
 		{ 
 			if (i == 0) //top cat y position; i=0 in loop so this is the flag for cat1 initiation
 			{
