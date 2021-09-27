@@ -13,30 +13,36 @@ class MyGame:public Game
 {	  
     SDL_Rect src;
     vector<Cat *> cats;
-    Animation a,b;
+    Animation a, a2, b;
 	public:
 	MyGame(int w=640,int h=480):Game("UntitledCat",w,h) 
 	{
 		vector <string> animations;
 		int yaxis = 0;
-		animations.push_back("media/animB.txt");
-		animations.push_back("media/animW.txt");
-    	for (int i=0;i<2;i++) 
+    	for (int i=0;i<2;i++) //loops twice, once for each cat
 		{ 
-			if (i == 0) //top cat y position
+			if (i == 0) //top cat y position; i=0 in loop so this is the flag for cat1 initiation
 			{
+				animations.push_back("media/animB.txt");
 				yaxis = 210;
+				a.read(media, animations[i]);
+				src.x=0; src.y=0;
+				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
+				//cat is 40 by 32 pixels 
+        		cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0, 0, 0));
+        		cats[i]->setBound(0, 0, w, h);
 			}
-			else //bottom cat y position
+			else //bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
 			{
+				animations.push_back("media/animW.txt");
 				yaxis = 243;
+				a2.read(media, animations[i]);
+				src.x=0; src.y=0;
+				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
+				//cat is 40 by 32 pixels 
+        		cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0, 0, 0));
+        		cats[i]->setBound(0, 0, w, h);
 			}
-			a.read(media,animations[i]);
-			src.x=0; src.y=0;
-			SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
-			//cat is 40 by 32 pixels 
-        	cats.push_back(new Cat(ren,&a,&src,w/2,yaxis,0,0,0,0));
-        	cats[i]->setBound(0,0,w,h);
     	}
     	b.read(media,"media/background.txt");
     	src.x=0; src.y=0; src.w=640; src.h=480;
