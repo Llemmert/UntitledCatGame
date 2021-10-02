@@ -17,6 +17,7 @@ class MyGame:public Game
 	public:
 	MyGame(int w=640,int h=480):Game("UntitledCat",w,h) 
 	{
+		
 		vector <string> animations;
 		int yaxis = 0;
     		for (int i=0;i<2;i++) //loops twice, once for each cat
@@ -29,8 +30,8 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 0));
-        			cats[i]->setBound(0, 0, w, h);
+        			cats.push_back(new Cat(ren, &a, &src, w/2, yaxis, 0, 400));
+        			cats[i]->setBound(0, 0, w, yaxis+1);
 			}
 			else //bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
 			{
@@ -40,8 +41,8 @@ class MyGame:public Game
 				src.x=0; src.y=0;
 				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
 				//cat is 40 by 32 pixels 
-        			cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, 0));
-        			cats[i]->setBound(0, 0, w, h);
+        			cats.push_back(new Cat(ren, &a2, &src, w/2, yaxis, 0, -400));
+        			cats[i]->setBound(0, yaxis-1, w, h-32);
 			}
     		}
     		b.read(media,"Workspace/media/background.txt");
@@ -53,8 +54,7 @@ class MyGame:public Game
     		b.update(dt);
       
     		SDL_RenderCopy(ren, b.getTexture(), &src, &src);
-    		for (unsigned i=0;i<cats.size();i++) 
-        	cats[i]->update(dt);
+    		for (unsigned i=0;i<cats.size();i++) cats[i]->update(dt);
     		SDL_RenderPresent(ren);
 	}
 	~MyGame() 
@@ -62,24 +62,38 @@ class MyGame:public Game
 	}
 	void handleKeyDown(SDL_Event aKey) //hold down key handle
 	{
+		int cat0Ticks=SDL_GetTicks(), cat0NewTicks, cat1Ticks=SDL_GetTicks(), cat1NewTicks;
 		//cat one left and right (arrow keys)
 		if (aKey.key.keysym.sym == SDLK_LEFT)
 		{
-			cats[0]->setVelocityX(-5);
+			cats[0]->setVelocityX(-100);
+			//cats[0]->animateWalk(1);
 		}
 		else if (aKey.key.keysym.sym == SDLK_RIGHT)
 		{
-			cats[0]->setVelocityX(5);
+			cats[0]->setVelocityX(100);
+			//cats[0]->animateWalk(1);
 		}
 		//cat two left and right (a and d keys)
 		else if (aKey.key.keysym.sym == SDLK_a)
 		{
-			cats[1]->setVelocityX(-5);
+			cats[1]->setVelocityX(-100);
+			//cats[1]->animateWalk(1);
 		}
 		else if (aKey.key.keysym.sym == SDLK_d)
 		{
-			
-			cats[1]->setVelocityX(5);
+			cats[1]->setVelocityX(100);
+			//cats[1]->animateWalk(1);
+		}
+		else if (aKey.key.keysym.sym == SDLK_UP)
+		{
+			cats[0]->setVelocityY(-300);
+			//cats[0]->animateWalk(1);
+		}
+		else if (aKey.key.keysym.sym == SDLK_s)
+		{
+			cats[1]->setVelocityY(300);
+			//cats[1]->animateWalk(1);
 		}
 	}
 	
@@ -100,6 +114,10 @@ class MyGame:public Game
 				cats[0]->setVelocityX(0);
 			}
 		}
+		else if (aKey.key.keysym.sym == SDLK_UP)
+		{
+			cats[0]->setVelocityY(400);
+		}
 		//cat two left and right (a and d keys)
 		else if (aKey.key.keysym.sym == SDLK_a)
 		{
@@ -114,6 +132,10 @@ class MyGame:public Game
 			{
 				cats[1]->setVelocityX(0);
 			}
+		}
+		else if (aKey.key.keysym.sym == SDLK_s)
+		{
+			cats[1]->setVelocityY(-400);
 		}
 	}
 };

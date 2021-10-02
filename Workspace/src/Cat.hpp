@@ -57,7 +57,7 @@ class Animation
 	}
 	void update(double dt) 
 	{
-		currentTime+=(int)(dt*1000.0);
+		currentTime+=(int)(dt*1000);
 		//cout << "Total Time " << totalTime << endl;
 		currentTime%=totalTime;
 	}
@@ -103,10 +103,9 @@ class Cat
     		x=newx;
     		y=newy;
     		vx=newvx; //x velocity
-    		//vy=newvy; //y velocity
-    		setBound();
+    		vy=newvy; //y velocity
   	}
-	void setBound(int newMinX=0, int newMinY=0, int newMaxX=0, int newMaxY=0) //bounds based on window size
+	void setBound(int newMinX, int newMinY, int newMaxX, int newMaxY) //bounds based on window size
 	{
     		minx=newMinX; maxx=newMaxX;
     		miny=newMinY; maxy=newMaxY;
@@ -117,18 +116,36 @@ class Cat
 		{
 			if (x<=minx) { x=maxx; }
 			else if (x>=maxx) { x=minx; }
-		}	
-		x+=vx; 	//y+=vy*dt; 	update x and y velocities of cat
-		dest.x=int(x);	//dest.y=(int)y; 	sets new destination of x and y
-    		a->update(dt);	//animate! animate! animate! make leg move
+		}
+		if(maxy!=miny){
+			if(y<=miny) { y=miny;}
+			if(y>=maxy) { y=maxy;}
+		}
+		if(vx!=0){ a->update(dt); }
+		x+=vx*dt; 	
+		y+=vy*dt; 	//update x and y velocities of cat
+		dest.x=(int)x;	//sets new destination of x and y
+		dest.y=(int)y; 	
+    		//a->update(dt);	//animate! animate! animate! make leg move
     		SDL_RenderCopy(ren, a->getTexture(), src, &dest); //cat 
    	}
+	//void animateWalk(double dt){
+	//	a->update(dt);
+	//	SDL_RenderCopy(ren,a->getTexture(), src, &dest);
+	//}
+
 	void setVelocityX(double velocity)
   	{
 		vx = velocity;
-  	}
+  	}	
+	void setVelocityY(double velocity){
+		vy = velocity;
+	}
   	double getVelocityX()
   	{
 		return vx;
   	}
+	double getVelocityY(){
+		return vy;
+	}
 };

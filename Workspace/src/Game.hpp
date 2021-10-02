@@ -32,35 +32,20 @@ class Game
 	  void run() 
 	  {
 	  	int newTicks;
-	  	while (1) //i know this is ugly im sorry it's like 3 am
-    		{	
+	  	while (1){	
 			newTicks=SDL_GetTicks();
-        		SDL_Event e;
+        	SDL_Event e;
 			//read event from user
-        		if (SDL_PollEvent(&e))
-			{
+        	if (SDL_PollEvent(&e)){
 			//if red x was hit, close game
-			if (e.type == SDL_QUIT)
-			{
-				break;
-			}
-			else
-			{
-				if (e.type == SDL_KEYDOWN) //key handle events
-				{
-					handleKeyDown(e);
-				}
-				if (e.type == SDL_KEYUP)
-				{
-					handleKeyUp(e);
+				if (e.type == SDL_QUIT) break;
+				else if (e.type == SDL_KEYDOWN)	handleKeyDown(e);
+				else if (e.type == SDL_KEYUP) handleKeyUp(e);
 				}
 				update(double(newTicks-ticks)/1000.0);  // seconds of elapsed time
 				ticks=newTicks;
 			}
 		}
-      		//  SDL_Delay(100);
-    		}
-	}
 	virtual void update(double dt/*s of elapsed time*/)=0;
 	virtual void handleKeyDown(SDL_Event key)=0;
 	virtual void handleKeyUp(SDL_Event key)=0;
