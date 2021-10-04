@@ -92,7 +92,7 @@ class Cat
         				double newx=0.0, double newy=0.0,
         				double newvx=0.0, double newvy=0.0) 
 	{
-		//FYI i'm commenting out the y stuff since we're not dealing with jumping yet, so for now the y value can stay static
+
 		src=newSrc;
 		ren=newRen;
 		a=newA;
