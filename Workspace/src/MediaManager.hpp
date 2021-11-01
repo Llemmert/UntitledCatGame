@@ -5,9 +5,23 @@ using namespace std;
 class MediaManager{
 	map<string,SDL_Texture *> images;
 	SDL_Renderer *ren;
+	map<string, Mix_Chunk *> samples;
+
 	public:
 	MediaManager(SDL_Renderer *newRen) {
 		ren=newRen;
+	}
+	Mix_Chunk *readWav(string filename)
+	{
+		if (samples.find(filename) == samples.end())
+		{
+			Mix_Chunk *sample;
+			sample = Mix_LoadWAV(filename.c_str());
+			if (!sample)
+				throw Exception(/*"Mix_LoadWav: " +*/ Mix_GetError());
+			samples[filename] = sample;
+		}
+		return (samples[filename]);
 	}
 	SDL_Texture *read(string filename) {
 	  SDL_Texture *bitmapTex;
