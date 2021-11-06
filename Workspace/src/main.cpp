@@ -82,7 +82,7 @@ public:
 
 		src.x = 0;
 		src.y = 0;
-		src.w = 12000;
+		src.w = w;
 		src.h = h;
 	}
 	void update(double dt)
