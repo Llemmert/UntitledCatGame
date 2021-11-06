@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <ctime>
+#include <cmath>
 #include "drawtext.hpp"
 #include "Animation.hpp"
 #include "Wall.hpp"
@@ -16,7 +17,7 @@ class Cat
 	SDL_Rect dest;
 	double x, y, vx, vy, ax, ay, gravity, rotate;
 	int minx, miny, maxx, maxy;
-	SDL_Point center;
+	SDL_Point center, gcheck1, gcheck2, gcheck3;
 	SDL_RendererFlip FlipState = SDL_FLIP_NONE;
 	bool grounded;
 	bool meow;
@@ -181,6 +182,8 @@ public:
 	{
 		meow = newmeow;
 	}
+
+	// might improve collision detection scheme later by making it non-point based
 	bool inside(int x, int y)
 	{
 		return (dest.x <= x && x <= dest.x + dest.w &&
@@ -193,21 +196,79 @@ public:
 				(inside(aWall->getx() + aWall->getw(), aWall->gety())) ||
 				(inside(aWall->getx(), aWall->gety() + aWall->geth())));
 	}
-	void handleCollision(wall *aWall)
+	void handleCollision(vector<wall *> &walls, double dt)
 	{
-		if (detectCollision(aWall))
+		for (auto aWall : walls)
 		{
-			double xcomp = (x + (dest.w / 2)) - aWall->centerx();
-			double ycomp = (y + (dest.h / 2)) - aWall->centery();
-			double tempx = dest.w / 2 + aWall->getw() / 2;
-			// double movcompx = xcomp - (dest.w / 2);
-			// double movcompy = ycomp - (dest.h / 2);
-			x -= 3;
-			// y -= vy;
-			vx = 0;
-			// dy = 0;
+			if (detectCollision(aWall))
+			{
+				double dx = (dest.x + (dest.w / 2)) - (aWall->getx() + aWall->centerx());
+				double dy = (dest.y + (dest.h / 2)) - (aWall->gety() + aWall->centery());
+				double shw = (dest.w / 2) + (aWall->getw() / 2);
+				double shh = (dest.h / 2) + (aWall->geth() / 2);
+				// cout << abs(dx) << " " << abs(dy) << endl;
+				// cout << dest.y + (dest.h / 2) << " " << aWall->centery() << endl;
+				if ((shw - abs(dx)) <= (shh - abs(dy)))
+				{
+					x -= vx * dt;
+					vx = 0;
+				}
+				else if (vy > 0 && playernumber == 1)
+				{
+					// cout << shw - abs(vx) << " " << shh - abs(vy) << endl;
+					y += (vy * dt) - 1;
+					vy = 0;
+					grounded = true;
+				}
+				else if (vy <= 0 && playernumber == 1)
+				{
+					y += (vy * dt) + 1;
+					vy = 0;
+				}
+				else if (vy >= 0 && playernumber == 2)
+				{
+					y += (vy * dt) - 1;
+					vy = 0;
+				}
+				else if (vy < 0 && playernumber == 2)
+				{
+					y += (vy * dt) + 1;
+					vy = 0;
+					grounded = true;
+				}
+			}
 		}
 	}
-	// return (dest.x <= x && x <= dest.x + dest.w &&
-	// 		dest.y <= y && y <= dest.y + dest.h)
+
+	bool checkGrounded(vector<wall *> &walls)
+	{
+		if (playernumber == 1)
+		{
+			for (auto aWall : walls)
+			{
+				if (aWall->inside(x + (dest.w / 2), y + dest.h + 1) || aWall->inside(x + (dest.w), y + dest.h + 1) ||
+					aWall->inside(x, y + dest.h + 1))
+					return true;
+
+				else if (y + dest.h + 1 >= 243)
+					return true;
+			}
+			return false;
+		}
+		else if (playernumber == 2)
+		{
+			for (auto aWall : walls)
+			{
+				if (aWall->inside(x + (dest.w / 2), y - 1) || aWall->inside(x + (dest.w), y - 1) ||
+					aWall->inside(x, y - 1))
+					return true;
+
+				else if (y - 1 <= 243)
+					return true;
+			}
+			return false;
+		}
+		else
+			return false;
+	}
 };

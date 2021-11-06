@@ -22,6 +22,7 @@ class MyGame : public Game
 	SDL_Rect camera;
 	vector<Cat *> cats;
 	Animation a, a2, b, wallanim;
+	vector<wall *> walls;
 	wall *wall1;
 
 public:
@@ -70,7 +71,12 @@ public:
 		// src.h = 30;
 		wallanim.read(media, "Workspace/media/animWall.txt");
 		SDL_QueryTexture(wallanim.getTexture(), NULL, NULL, &src.w, &src.h);
-		wall1 = new wall(ren, &wallanim, &src, 120, 200);
+		wall1 = new wall(ren, &wallanim, &src, 120, 250);
+		walls.push_back(new wall(ren, &wallanim, &src, 120, 250));
+		walls.push_back(new wall(ren, &wallanim, &src, 170, 284));
+		walls.push_back(new wall(ren, &wallanim, &src, 170, 252));
+		walls.push_back(new wall(ren, &wallanim, &src, 170, 220));
+		walls.push_back(new wall(ren, &wallanim, &src, 170, 188));
 
 		b.read(media, "Workspace/media/background.txt");
 
@@ -93,10 +99,16 @@ public:
 		SDL_RenderCopy(ren, b.getTexture(), &src, &src);
 
 		wall1->update(dt);
+		for (int i = 0; i < walls.size(); i++)
+			walls[i]->update(dt);
 
 		for (unsigned i = 0; i < cats.size(); i++)
 			cats[i]->update(dt);
-		cats[0]->handleCollision(wall1);
+		cats[0]->handleCollision(walls, dt);
+		cats[0]->setGrounded(cats[0]->checkGrounded(walls));
+		cats[1]->handleCollision(walls, dt);
+		cats[1]->setGrounded(cats[1]->checkGrounded(walls));
+
 		//  drawText(&src, ren, "text", 50, 50, 0, {255, 255, 255});
 		SDL_RenderPresent(ren);
 	}

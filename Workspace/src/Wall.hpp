@@ -30,8 +30,8 @@ public:
 		x = newx;
 		y = newy;
 		center = {dest.w / 2, dest.h / 2};
-		w = 32;
-		h = 32;
+		w = dest.w;
+		h = dest.h;
 		// SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
 	}
 	// collision(int Obx, int Oby)
@@ -71,5 +71,10 @@ public:
 	double geth()
 	{
 		return h;
+	}
+	bool inside(int x, int y)
+	{
+		return (dest.x <= x && x <= dest.x + dest.w &&
+				dest.y <= y && y <= dest.y + dest.h);
 	}
 };
