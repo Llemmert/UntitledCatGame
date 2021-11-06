@@ -1,88 +1,12 @@
 #pragma once
-
 #include <vector>
 #include <fstream>
+#include <ctime>
+#include "drawtext.hpp"
+#include "Animation.hpp"
+#include "Wall.hpp"
+
 using namespace std;
-
-class AnimationFrame
-{
-	SDL_Texture *frame;
-	int millis;
-
-public:
-	void init(SDL_Texture *newFrame, int newMillis = 100)
-	{
-		frame = newFrame;
-		millis = newMillis;
-	}
-	void read(MediaManager *media, ifstream &in)
-	{
-		string fname;
-		in >> millis >> fname;
-		frame = media->read("media/" + fname + ".bmp");
-		// cout << "reading " << fname << ".bmp" << endl;
-	}
-	int getMillis() { return millis; }
-	SDL_Texture *getTexture() { return frame; }
-};
-
-class Animation
-{
-	vector<AnimationFrame *> frames;
-	int totalTime;
-	int currentTime;
-
-public:
-	Animation()
-	{
-		totalTime = 0;
-		currentTime = 0;
-	}
-	void read(MediaManager *media, string filename)
-	{
-		int max;
-		ifstream in;
-		in.open(filename);
-		in >> max;
-		for (int i = 0; i < max; i++)
-		{
-			AnimationFrame *af = new AnimationFrame();
-			af->read(media, in);
-			add(af);
-		}
-		in.close();
-	}
-	void add(AnimationFrame *af)
-	{
-		frames.push_back(af);
-		totalTime += af->getMillis();
-	}
-	void update(double dt)
-	{
-		currentTime += (int)(dt * 1000);
-		// cout << "Total Time " << totalTime << endl;
-		currentTime %= totalTime;
-	}
-	SDL_Texture *getTexture()
-	{
-		int checkTime = 0;
-		int t = 0;
-		for (t = 0; t < frames.size(); t++)
-		{
-			if (checkTime + frames[t]->getMillis() > currentTime)
-				break;
-			checkTime += frames[t]->getMillis();
-		}
-		if (t == frames.size())
-			t = 0;
-		return frames[t]->getTexture();
-	}
-	~Animation()
-	{
-		for (auto f : frames)
-			delete f;
-	}
-};
 
 class Cat
 {
@@ -95,13 +19,16 @@ class Cat
 	SDL_Point center;
 	SDL_RendererFlip FlipState = SDL_FLIP_NONE;
 	bool grounded;
+	bool meow;
+	double meowtimer;
+	time_t initial;
+	int playernumber;
 
 public:
 	Cat(SDL_Renderer *newRen, Animation *newA, SDL_Rect *newSrc,
-		double newx = 0.0, double newy = 0.0,
-		double newvx = 0.0, double newvy = 0.0, double newax = 0, double newgravity = 0)
+		double newx = 0.0, double newy = 0.0, double newvx = 0.0, double newvy = 0.0,
+		double newax = 0, double newgravity = 0, int newplayernumber = 0)
 	{
-
 		src = newSrc;
 		ren = newRen;
 		a = newA;
@@ -109,6 +36,7 @@ public:
 		dest.h = src->h; // img height
 		dest.x = newx;	 // starting x pos
 		dest.y = newy;	 // starting y pos
+		playernumber = newplayernumber;
 		x = newx;
 		y = newy;
 		vx = newvx; // x velocity
@@ -118,6 +46,9 @@ public:
 		gravity = newgravity;
 		center = {30, 20};
 		grounded = true;
+		meow = false;
+		meowtimer = 0;
+		initial = -1;
 	}
 	void setBound(int newMinX, int newMinY, int newMaxX, int newMaxY) // bounds based on window size
 	{
@@ -175,6 +106,7 @@ public:
 			else
 				rotate = -25;
 		}
+
 		if (vy == 0)
 			rotate = 0;
 		if (!grounded)
@@ -192,7 +124,21 @@ public:
 			FlipState = SDL_FLIP_NONE;
 		if (vx > 0)
 			FlipState = SDL_FLIP_HORIZONTAL;
-		SDL_RenderCopyEx(ren, a->getTexture(), src, &dest, rotate, &center, FlipState); // cat
+		SDL_RenderCopyEx(ren, a->getTexture(), src, &dest, rotate, &center, FlipState);
+		if (meow)
+		{
+			if (initial == -1)
+				initial = time(0);
+			if (playernumber == 1)
+				drawText(src, ren, "*meow*", x - 25, y - 40, 0, {255, 255, 255});
+			else
+				drawText(src, ren, "F*ckoff m8", x - 25, y + 40, 0, {255, 255, 255});
+			if (difftime(time(0), initial) > .5)
+			{
+				meow = false;
+				initial = -1;
+			}
+		}
 	}
 	// void animateWalk(double dt){
 	//	a->update(dt);
@@ -231,4 +177,37 @@ public:
 	{
 		grounded = groundvar;
 	}
+	void setMeow(bool newmeow)
+	{
+		meow = newmeow;
+	}
+	bool inside(int x, int y)
+	{
+		return (dest.x <= x && x <= dest.x + dest.w &&
+				dest.y <= y && y <= dest.y + dest.h);
+	}
+	bool detectCollision(wall *aWall)
+	{
+		return ((inside(aWall->getx(), aWall->gety())) ||
+				(inside(aWall->getx() + aWall->getw(), aWall->gety() + aWall->geth())) ||
+				(inside(aWall->getx() + aWall->getw(), aWall->gety())) ||
+				(inside(aWall->getx(), aWall->gety() + aWall->geth())));
+	}
+	void handleCollision(wall *aWall)
+	{
+		if (detectCollision(aWall))
+		{
+			double xcomp = (x + (dest.w / 2)) - aWall->centerx();
+			double ycomp = (y + (dest.h / 2)) - aWall->centery();
+			double tempx = dest.w / 2 + aWall->getw() / 2;
+			// double movcompx = xcomp - (dest.w / 2);
+			// double movcompy = ycomp - (dest.h / 2);
+			x -= 3;
+			// y -= vy;
+			vx = 0;
+			// dy = 0;
+		}
+	}
+	// return (dest.x <= x && x <= dest.x + dest.w &&
+	// 		dest.y <= y && y <= dest.y + dest.h)
 };

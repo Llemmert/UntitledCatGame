@@ -8,6 +8,7 @@ protected:
 	MediaManager *media;
 	SDL_Window *window;
 	SDL_Renderer *ren;
+	// SDL_Rect
 	int ticks; // ms ticks since start
 	int w, h;
 
@@ -19,6 +20,7 @@ public:
 		SDL_Init(SDL_INIT_VIDEO);
 		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == 1)
 			throw Exception("Could not Open Audio");
+		TTF_Init();
 		window = SDL_CreateWindow(
 			title.c_str(),			 // window title
 			SDL_WINDOWPOS_UNDEFINED, // initial x position
