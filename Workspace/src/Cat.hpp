@@ -6,6 +6,8 @@
 #include "drawtext.hpp"
 #include "Animation.hpp"
 #include "Wall.hpp"
+#include "Enemy.hpp"
+//#include "Spike.hpp"
 
 using namespace std;
 
@@ -240,6 +242,24 @@ public:
 		}
 	}
 
+	void handleEnemyCollision(enemy *aEnemy)
+	{
+		if (playernumber == 1)
+		{
+			if (aEnemy->insideStompBox(x + (dest.w / 2), y + dest.h + 1) || aEnemy->insideStompBox(x + (dest.w), y + dest.h + 1) ||
+				aEnemy->insideStompBox(x, y + dest.h + 1))
+				if (vy > 0)
+					vy = -480;
+		}
+		if (playernumber == 2)
+		{
+			if (aEnemy->insideStompBox(x + (dest.w / 2), y - 1) || aEnemy->inside(x + (dest.w), y - 1) ||
+				aEnemy->inside(x, y - 1))
+				if (vy < 0)
+					vy = 480;
+		}
+	}
+
 	bool checkGrounded(vector<wall *> &walls)
 	{
 		if (playernumber == 1)
@@ -271,4 +291,14 @@ public:
 		else
 			return false;
 	}
+
+	// void CheckSpikeCollision(spike *aSpike) // switch to bool
+	// {
+	// 	// if (aSpike->inside(x, y) || aSpike->inside(x, y + dest.h) ||
+	// 	// 	aSpike->inside(x + dest.w, y) || aSpike->inside(x + dest.w, y + dest.h))
+	// 	// cout << "collision" << endl;
+	// 	// cout << aSpike->inside(140, 240);
+	// }
+
+	// bool alive, isalive, kill, revive
 };

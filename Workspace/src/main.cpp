@@ -9,6 +9,8 @@
 #include "Game.hpp"
 #include "Cat.hpp"
 #include "Animation.hpp"
+#include "Enemy.hpp"
+#include "Spike.hpp"
 
 //#include "Wall.hpp"
 
@@ -21,9 +23,10 @@ class MyGame : public Game
 	SDL_Rect src, dest;
 	SDL_Rect camera;
 	vector<Cat *> cats;
-	Animation a, a2, b, wallanim;
+	Animation a, a2, b, wallanim, e, s;
 	vector<wall *> walls;
-	wall *wall1;
+	enemy *enemy1, *enemy2;
+	spike *spike1;
 
 public:
 	MyGame(int w = 840, int h = 480) : Game("UntitledCat", w, h)
@@ -71,12 +74,22 @@ public:
 		// src.h = 30;
 		wallanim.read(media, "Workspace/media/animWall.txt");
 		SDL_QueryTexture(wallanim.getTexture(), NULL, NULL, &src.w, &src.h);
-		wall1 = new wall(ren, &wallanim, &src, 120, 250);
-		walls.push_back(new wall(ren, &wallanim, &src, 120, 250));
+		walls.push_back(new wall(ren, &wallanim, &src, 220, 250));
 		walls.push_back(new wall(ren, &wallanim, &src, 170, 284));
 		walls.push_back(new wall(ren, &wallanim, &src, 170, 252));
 		walls.push_back(new wall(ren, &wallanim, &src, 170, 220));
 		walls.push_back(new wall(ren, &wallanim, &src, 170, 188));
+		walls.push_back(new wall(ren, &wallanim, &src, 650, 203));
+		walls.push_back(new wall(ren, &wallanim, &src, 650, 243));
+
+		e.read(media, "Workspace/media/animE.txt");
+		SDL_QueryTexture(e.getTexture(), NULL, NULL, &src.w, &src.h);
+		enemy1 = new enemy(ren, &e, &src, 480, 243 - 55, -50);
+		enemy2 = new enemy(ren, &e, &src, 480, 243, -30);
+
+		s.read(media, "Workspace/media/animSpike.txt");
+		SDL_QueryTexture(s.getTexture(), NULL, NULL, &src.w, &src.h);
+		spike1 = new spike(ren, &s, &src, 100, 243 - 32);
 
 		b.read(media, "Workspace/media/background.txt");
 
@@ -98,16 +111,32 @@ public:
 		// 	src.x = 1800 - (w / 2);
 		SDL_RenderCopy(ren, b.getTexture(), &src, &src);
 
-		wall1->update(dt);
+		spike1->update(dt);
+
 		for (int i = 0; i < walls.size(); i++)
 			walls[i]->update(dt);
 
 		for (unsigned i = 0; i < cats.size(); i++)
 			cats[i]->update(dt);
+
 		cats[0]->handleCollision(walls, dt);
 		cats[0]->setGrounded(cats[0]->checkGrounded(walls));
+		cats[0]->handleEnemyCollision(enemy1);
+		// cats[0]->CheckSpikeCollision(spike1);
 		cats[1]->handleCollision(walls, dt);
 		cats[1]->setGrounded(cats[1]->checkGrounded(walls));
+		cats[1]->handleEnemyCollision(enemy2);
+
+		enemy1->update(dt);
+		enemy1->handleCollision(walls);
+
+		enemy2->update(dt);
+		enemy2->handleCollision(walls);
+
+		if (enemy1->inside(cats[0]->getx(), cats[0]->gety()))
+		{
+			// cout << "hi" << endl;
+		}
 
 		//  drawText(&src, ren, "text", 50, 50, 0, {255, 255, 255});
 		SDL_RenderPresent(ren);

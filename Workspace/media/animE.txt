@@ -1,0 +1,12 @@
+11
+200 enemyAnim/enemy1
+200 enemyAnim/enemy2
+200 enemyAnim/enemy3
+200 enemyAnim/enemy4
+200 enemyAnim/enemy5
+200 enemyAnim/enemy6
+200 enemyAnim/enemy7
+200 enemyAnim/enemy8
+200 enemyAnim/enemy9
+200 enemyAnim/enemy10
+200 enemyAnim/enemy11
