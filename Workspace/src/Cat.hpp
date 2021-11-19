@@ -7,6 +7,8 @@
 #include "Animation.hpp"
 #include "Wall.hpp"
 #include "Enemy.hpp"
+#include "Block.hpp"
+
 //#include "Spike.hpp"
 
 using namespace std;
@@ -14,27 +16,28 @@ using namespace std;
 class Cat
 {
 	SDL_Renderer *ren;
-	Animation *a;
+	vector<Animation> *anims;
 	SDL_Rect *src;
 	SDL_Rect dest;
 	double x, y, vx, vy, ax, ay, gravity, rotate;
 	int minx, miny, maxx, maxy;
 	SDL_Point center, gcheck1, gcheck2, gcheck3;
 	SDL_RendererFlip FlipState = SDL_FLIP_NONE;
-	bool grounded;
+	bool grounded, alive;
 	bool meow;
 	double meowtimer;
-	time_t initial;
+	time_t initial, idleTime, newIdleTime;
 	int playernumber;
+	int idleInSeconds;
 
 public:
-	Cat(SDL_Renderer *newRen, Animation *newA, SDL_Rect *newSrc,
+	Cat(SDL_Renderer *newRen, vector<Animation> *newAnims, SDL_Rect *newSrc,
 		double newx = 0.0, double newy = 0.0, double newvx = 0.0, double newvy = 0.0,
 		double newax = 0, double newgravity = 0, int newplayernumber = 0)
 	{
 		src = newSrc;
 		ren = newRen;
-		a = newA;
+		anims = newAnims;
 		dest.w = src->w; // img width
 		dest.h = src->h; // img height
 		dest.x = newx;	 // starting x pos
@@ -52,6 +55,7 @@ public:
 		meow = false;
 		meowtimer = 0;
 		initial = -1;
+		alive = true;
 	}
 	void setBound(int newMinX, int newMinY, int newMaxX, int newMaxY) // bounds based on window size
 	{
@@ -62,6 +66,7 @@ public:
 	}
 	void update(double dt)
 	{
+		int animNumber = 0;
 		if (maxx != minx) // causes the cats to loop/reappear on the other side when they reach an edge
 		{
 			if (x <= minx)
@@ -92,7 +97,7 @@ public:
 
 		if (vx != 0)
 		{
-			a->update(dt);
+			anims->at(animNumber).update(dt);
 		}
 
 		if (vy > 0)
@@ -122,12 +127,32 @@ public:
 		y += vy * dt;	 // update x and y velocities of cat
 		dest.x = (int)x; // sets new destination of x and y
 		dest.y = (int)y;
-		// a->update(dt);	//animate! animate! animate! make leg move
+
+		if (isIdle(vx, vy))
+		{
+			if (idleTime == 0)
+				idleTime = time(0);
+			else
+				newIdleTime = time(0);
+			idleInSeconds = (int)-difftime(idleTime, newIdleTime); // time spent idle in seconds
+
+			if (idleInSeconds > 5) // IF IDLE FOR LONGER THAN 5 SECONDS
+			{
+				animNumber = 1;
+				anims->at(animNumber).update(dt);
+			}
+		}
+		else
+		{
+			// reset idle count
+			idleTime = 0;
+		}
+
 		if (vx < 0)
 			FlipState = SDL_FLIP_NONE;
 		if (vx > 0)
 			FlipState = SDL_FLIP_HORIZONTAL;
-		SDL_RenderCopyEx(ren, a->getTexture(), src, &dest, rotate, &center, FlipState);
+		SDL_RenderCopyEx(ren, anims->at(animNumber).getTexture(), src, &dest, rotate, &center, FlipState);
 		if (meow)
 		{
 			if (initial == -1)
@@ -242,21 +267,85 @@ public:
 		}
 	}
 
+	//////
+
+	bool detectBlockCollision(block *aBlock)
+	{
+		return ((inside(aBlock->getx(), aBlock->gety())) ||
+				(inside(aBlock->getx() + aBlock->getw(), aBlock->gety() + aBlock->geth())) ||
+				(inside(aBlock->getx() + aBlock->getw(), aBlock->gety())) ||
+				(inside(aBlock->getx(), aBlock->gety() + aBlock->geth())));
+	}
+	void handleBlockCollision(vector<block *> &blocks, double dt)
+	{
+		for (auto aBlock : blocks)
+		{
+			if (detectBlockCollision(aBlock))
+			{
+				double dx = (dest.x + (dest.w / 2)) - (aBlock->getx() + aBlock->centerx());
+				double dy = (dest.y + (dest.h / 2)) - (aBlock->gety() + aBlock->centery());
+				double shw = (dest.w / 2) + (aBlock->getw() / 2);
+				double shh = (dest.h / 2) + (aBlock->geth() / 2);
+				aBlock->collided(getVelocityX() * .6);
+				if ((shw - abs(dx)) <= (shh - abs(dy)))
+				{
+					x -= vx * dt;
+					vx = 0;
+				}
+				if (playernumber == 1)
+				{
+					if (aBlock->insideStompBox(x + (dest.w / 2), y + dest.h + 1) || aBlock->insideStompBox(x + (dest.w), y + dest.h + 1) ||
+						aBlock->insideStompBox(x, y + dest.h + 1))
+						if (vy > 0)
+						{
+							vy = -480;
+							aBlock->sety(244);
+						}
+				}
+
+				if (playernumber == 2)
+				{
+					if (aBlock->insideStompBox(x + (dest.w / 2), y - 1) || aBlock->inside(x + (dest.w), y - 1) ||
+						aBlock->inside(x, y - 1))
+						if (vy < 0)
+						{
+							vy = 480;
+							aBlock->sety(207);
+						}
+				}
+			}
+		}
+	}
+
+	//////
+
 	void handleEnemyCollision(enemy *aEnemy)
 	{
 		if (playernumber == 1)
 		{
 			if (aEnemy->insideStompBox(x + (dest.w / 2), y + dest.h + 1) || aEnemy->insideStompBox(x + (dest.w), y + dest.h + 1) ||
 				aEnemy->insideStompBox(x, y + dest.h + 1))
-				if (vy > 0)
-					vy = -480;
+			{
+				// if (vy > 0)
+				vy = -480;
+			}
+			else if (aEnemy->inside(x, y) || aEnemy->inside(x + dest.w, y) ||
+					 aEnemy->inside(x, y + dest.h) || aEnemy->inside(x + dest.w, y + dest.h))
+			{
+				alive = false;
+			}
 		}
 		if (playernumber == 2)
 		{
 			if (aEnemy->insideStompBox(x + (dest.w / 2), y - 1) || aEnemy->inside(x + (dest.w), y - 1) ||
 				aEnemy->inside(x, y - 1))
-				if (vy < 0)
-					vy = 480;
+				// if (vy < 0)
+				vy = 480;
+			else if (aEnemy->inside(x, y) || aEnemy->inside(x + dest.w, y) ||
+					 aEnemy->inside(x, y + dest.h) || aEnemy->inside(x + dest.w, y + dest.h))
+			{
+				alive = false;
+			}
 		}
 	}
 
@@ -290,6 +379,39 @@ public:
 		}
 		else
 			return false;
+	}
+
+	bool isIdle(int vx, int vy)
+	{
+		if (vx == 0 && vy == 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	bool isAlive()
+	{
+		return alive;
+	}
+
+	void revive(int rx, int ry)
+	{
+		x = rx;
+		y = ry;
+		alive = true;
+	}
+
+	int getw()
+	{
+		return dest.w;
+	}
+	int geth()
+	{
+		return dest.h;
 	}
 
 	// void CheckSpikeCollision(spike *aSpike) // switch to bool

@@ -29,3 +29,79 @@ bool checkCollisions(vector<Particle *> &others){
 	}
 	return false;
 }
+
+
+///////////////////
+Networking      
+///////////////////
+
+class GameState {
+	vector<PartileState *> particlesStates;
+	GameState(vector<Particle *> particles, int initX, in initY){
+		for (auto p:particles ) particleStates.push_back((ParticleState*)p);
+		px=initX;
+		py=initY;
+	}
+};
+in mygame::::
+gs = new Gamestate()
+
+could maybe make particle state take in a particlepointer //memcpy???
+	x=p->x
+
+class ParticleState{
+	protected:
+	double x,y,vx,vy,ax,ay;
+	int minx,miny,maxx,maxy;
+	public:
+	functions that use those variables
+	ParticleState /*contsructor*/(
+		most the particle stuff
+	)
+	x=newx;
+	y=newy;
+
+	virtual void update(){
+
+	}
+};
+class Particle: public ParticleState
+	particle():particleState()           //check this notation and inheritance (constructor)
+	particleState::update(dt);
+
+put gamestate gs in constructor of game
+
+//note to self
+destroy blocks to drop enemy??
+
+
+//////////////////
+Sockets
+//////////////////
+
+tcp Sockets (we want every packet to arrive and in order)
+
+libsdl.org tcp sockets looking for server
+if SDL.net_resolveHost()
+
+static int GameStateServer(void *ptr){
+	GamestateServer
+}
+
+
+//////////////////
+look into threading in the future
+SDL_CreateThread(GameState::server,"game state server",(void *)gs)
+/*review void pointer*/
+
+const in PORT=9999;
+
+
+
+		// src.x = cats[0]->getx() - (w / 2);
+		// dest.x = 0;
+
+		// if (src.x < 0)
+		// 	src.x = 0;
+		// if ((src.x - (w / 2)) > 1800)
+		// 	src.x = 1800 - (w / 2);

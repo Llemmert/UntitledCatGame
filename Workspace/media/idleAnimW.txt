@@ -1,0 +1,5 @@
+4
+300 wIdle/wsleep1
+700 wIdle/wsleep2
+300 wIdle/wsleep3
+700 wIdle/wsleep4

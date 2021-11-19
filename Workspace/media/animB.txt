@@ -1,6 +1,6 @@
 5
-100 bfirst
-100 bsecond
-200 bthird
-200 bfourth
-300 bfifth
+100 bWalk/bfirst
+100 bWalk/bsecond
+200 bWalk/bthird
+200 bWalk/bfourth
+300 bWalk/bfifth

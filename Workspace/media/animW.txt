@@ -1,6 +1,6 @@
 5
-100 wfirst
-100 wsecond
-200 wthird
-200 wfourth
-300 wfifth
+100 wWalk/wfirst
+100 wWalk/wsecond
+200 wWalk/wthird
+200 wWalk/wfourth
+300 wWalk/wfifth

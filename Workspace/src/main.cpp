@@ -12,8 +12,6 @@
 #include "Enemy.hpp"
 #include "Spike.hpp"
 
-//#include "Wall.hpp"
-
 using namespace std;
 
 class MyGame : public Game
@@ -24,7 +22,9 @@ class MyGame : public Game
 	SDL_Rect camera;
 	vector<Cat *> cats;
 	Animation a, a2, b, wallanim, e, s;
+	vector<Animation> blackCatAnim, whiteCatAnim;
 	vector<wall *> walls;
+	vector<block *> blocks;
 	enemy *enemy1, *enemy2;
 	spike *spike1;
 
@@ -37,36 +37,47 @@ public:
 		Mix_PlayChannel(0, sound, -1);
 
 		vector<string> animations;
-		int yaxis = 0;
-		for (int i = 0; i < 2; i++) // loops twice, once for each cat
+		for (int i = 0; i < 2; i++)
 		{
-			if (i == 0) // top cat y position; i=0 in loop so this is the flag for cat1 initiation
-			{
-				animations.push_back("Workspace/media/animB.txt");
-				yaxis = 210;
-				a.read(media, animations[i]);
-				src.x = 0;
-				src.y = 0;
-				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
-
-				// cat is 40 by 32 pixels
-				cats.push_back(new Cat(ren, &a, &src, w / 2, yaxis, 0, 400, 0, 1000, 1));
-				cats[i]->setBound(0, 0, w, yaxis + 1);
-			}
-			else // bottom cat y position; i!=0 in loop so this is the flag for cat2 initiation
-			{
-				animations.push_back("Workspace/media/animW.txt");
-
-				yaxis = 243;
-				a2.read(media, animations[i]);
-				src.x = 0;
-				src.y = 0;
-				SDL_QueryTexture(a.getTexture(), NULL, NULL, &src.w, &src.h);
-				// cat is 40 by 32 pixels
-				cats.push_back(new Cat(ren, &a2, &src, w / 2, yaxis, 0, -400, 0, -1000, 2));
-				cats[i]->setBound(0, yaxis - 1, w, h - 32);
-			}
+			blackCatAnim.push_back(a);
+			whiteCatAnim.push_back(a);
 		}
+		cout << blackCatAnim.size() << endl;
+		int yaxis = 0;
+		// -----------------------create black cat-----------------------------
+		animations.push_back("Workspace/media/animB.txt");
+		animations.push_back("Workspace/media/idleAnimB.txt");
+		yaxis = 210;
+		src.x = 0;
+		src.y = 0;
+
+		for (int i = 0; i < blackCatAnim.size(); i++)
+		{
+			cout << animations[i] << endl;
+			blackCatAnim.at(i).read(media, animations[i]);
+			SDL_QueryTexture(blackCatAnim.at(i).getTexture(), NULL, NULL, &src.w, &src.h);
+		}
+
+		// cat is 40 by 32 pixels
+		cats.push_back(new Cat(ren, &blackCatAnim, &src, (w / 2) - 300, yaxis, 0, 400, 0, 1000, 1));
+		cats[0]->setBound(0, 0, w, yaxis + 1); // index 0 is black cat/cat 1
+
+		// ---------------------create white cat--------------------------
+		animations.push_back("Workspace/media/animW.txt");
+		animations.push_back("Workspace/media/idleAnimW.txt");
+		yaxis = 243;
+		src.x = 0;
+		src.y = 0;
+
+		for (int i = 0; i < 2; i++) // read animations and get textures
+		{
+			whiteCatAnim[i].read(media, animations[i + 2]); // index 3 is the white cat running animation
+			SDL_QueryTexture(whiteCatAnim.at(i).getTexture(), NULL, NULL, &src.w, &src.h);
+		}
+
+		// cat is 40 by 32 pixels
+		cats.push_back(new Cat(ren, &whiteCatAnim, &src, (w / 2) - 300, yaxis, 0, -400, 0, -1000, 2));
+		cats[1]->setBound(0, yaxis - 1, w, h - 32); // index 1 is white cat/cat 2
 
 		// src.x = 0;
 		// src.y = 0;
@@ -81,6 +92,14 @@ public:
 		walls.push_back(new wall(ren, &wallanim, &src, 170, 188));
 		walls.push_back(new wall(ren, &wallanim, &src, 650, 203));
 		walls.push_back(new wall(ren, &wallanim, &src, 650, 243));
+
+		///
+		blocks.push_back(new block(ren, &wallanim, &src, 50, 208, 0));
+		for (int i = 0; i < blocks.size(); i++)
+		{
+			blocks[i]->setBound(0, w);
+		}
+		///
 
 		e.read(media, "Workspace/media/animE.txt");
 		SDL_QueryTexture(e.getTexture(), NULL, NULL, &src.w, &src.h);
@@ -102,30 +121,38 @@ public:
 	{
 		SDL_RenderClear(ren);
 		b.update(dt);
-		// src.x = cats[0]->getx() - (w / 2);
-		// dest.x = 0;
-
-		// if (src.x < 0)
-		// 	src.x = 0;
-		// if ((src.x - (w / 2)) > 1800)
-		// 	src.x = 1800 - (w / 2);
 		SDL_RenderCopy(ren, b.getTexture(), &src, &src);
 
 		spike1->update(dt);
+		for (int i = 0; i < blocks.size(); i++)
+			blocks[i]->update(dt);
 
 		for (int i = 0; i < walls.size(); i++)
 			walls[i]->update(dt);
 
 		for (unsigned i = 0; i < cats.size(); i++)
-			cats[i]->update(dt);
+		{
+			if (cats[i]->isAlive())
+				cats[i]->update(dt);
+		}
 
-		cats[0]->handleCollision(walls, dt);
-		cats[0]->setGrounded(cats[0]->checkGrounded(walls));
-		cats[0]->handleEnemyCollision(enemy1);
-		// cats[0]->CheckSpikeCollision(spike1);
-		cats[1]->handleCollision(walls, dt);
-		cats[1]->setGrounded(cats[1]->checkGrounded(walls));
-		cats[1]->handleEnemyCollision(enemy2);
+		if (cats[0]->isAlive())
+		{
+			cats[0]->handleCollision(walls, dt);
+			cats[0]->setGrounded(cats[0]->checkGrounded(walls));
+			cats[0]->handleEnemyCollision(enemy1);
+			cats[0]->handleBlockCollision(blocks, dt);
+			// cats[0]->CheckSpikeCollision(spike1);
+		}
+
+		if (cats[1]->isAlive())
+		{
+			cats[1]->handleCollision(walls, dt);
+			cats[1]->setGrounded(cats[1]->checkGrounded(walls));
+			cats[1]->handleEnemyCollision(enemy2);
+			cats[1]->handleBlockCollision(blocks, dt);
+		}
+		blocks[0]->handleCollision(walls, dt);
 
 		enemy1->update(dt);
 		enemy1->handleCollision(walls);
@@ -133,10 +160,16 @@ public:
 		enemy2->update(dt);
 		enemy2->handleCollision(walls);
 
-		if (enemy1->inside(cats[0]->getx(), cats[0]->gety()))
-		{
-			// cout << "hi" << endl;
-		}
+		// if (enemy1->inside(cats[0]->getx() + cats[0]->getw(), cats[0]->gety()) ||
+		// 	enemy1->inside(cats[0]->getx() + cats[0]->getw(), cats[0]->gety() + cats[0]->geth()))
+		// {
+		// 	cout << "hi" << endl;
+		// }
+
+		// if (enemy1->inside(cats[0]->getx(), cats[0]->gety()))
+		// {
+		// 	// cout << "hi" << endl;
+		// }
 
 		//  drawText(&src, ren, "text", 50, 50, 0, {255, 255, 255});
 		SDL_RenderPresent(ren);
@@ -189,6 +222,12 @@ public:
 				meowsound2 = media->readWav("Workspace/media/sounds/meow_sound_angry.wav");
 				cats[1]->setMeow(true);
 				Mix_PlayChannel(2, meowsound2, 0);
+				break;
+			case SDLK_r:
+				if (!cats[0]->isAlive())
+					cats[0]->revive(40, 40);
+				if (!cats[1]->isAlive())
+					cats[1]->revive(40, 400);
 				break;
 			default:
 				break;

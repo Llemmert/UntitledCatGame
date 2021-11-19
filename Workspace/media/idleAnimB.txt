@@ -1,0 +1,5 @@
+4
+300 bIdle/bsleep1
+700 bIdle/bsleep2
+300 bIdle/bsleep3
+700 bIdle/bsleep4
